@@ -13,10 +13,12 @@ from PIL import Image
 from datetime import timedelta
 from sentence_transformers import SentenceTransformer
 
-app = Flask(__name__)
-app.secret_key = "tajna"
-app.permanent_session_lifetime = timedelta(minutes=15)
 load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.environ["APP_SECRET_KEY"]
+app.permanent_session_lifetime = timedelta(minutes=15)
+
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 api_key = os.environ["MISTRAL_API_KEY"]

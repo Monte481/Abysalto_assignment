@@ -86,6 +86,7 @@ ABYSALTO_ASSIGNMENT/
    Create a `.env` file in the project root:
 ```
    MISTRAL_API_KEY=your_api_key_here
+   APP_SECRET_KEY=your_secret_key_for_session
 ```
 
 6. **Run the application**:
@@ -96,13 +97,17 @@ ABYSALTO_ASSIGNMENT/
 
 ### Docker Installation
 
-1. **Build and run with Docker Compose**:
+1. **Configure environment variables**:
+   Create a `.env` file in the project root:
+```
+   MISTRAL_API_KEY=your_api_key_here
+   APP_SECRET_KEY=your_secret_key_for_session
+```
+
+2. **Build and run with Docker Compose**:
 ```bash
    docker-compose up --build
 ```
-
-2. **Configure environment**:
-   Create a `.env` file with your Mistral API key before running Docker.
 
 3. **Access the application**:
    - Open your browser to `http://localhost:5000`
@@ -235,3 +240,6 @@ MISTRAL_API_KEY=your_key_here
 
 ### Large PDF Processing Issues
 Large PDFs may take time to process. Consider splitting them into smaller documents.
+
+### NOTE
+- This README.md file was writen using ChatGPT.
