@@ -13,7 +13,7 @@ from sentence_transformers import SentenceTransformer
 
 app = Flask(__name__)
 app.secret_key = "tajna"
-app.permanent_session_lifetime = timedelta(minutes=5)
+app.permanent_session_lifetime = timedelta(minutes=15)
 load_dotenv()
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -184,4 +184,4 @@ def retrieved_chunks(question, index, all_chunks, k=3):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
