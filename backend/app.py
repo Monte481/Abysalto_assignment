@@ -21,14 +21,40 @@ api_key = os.environ["MISTRAL_API_KEY"]
 model = "mistral-medium-latest"
 client = Mistral(api_key=api_key)
 
+documents_store = []
+faiss_index = None
+all_chunks_store = []
+
 @app.route("/", methods=["GET"])
 def home():
-    results = session.get("ocr_text", [])
-    return render_template("index.html", results=results)
+    global documents_store
+    answer = session.get("answer")
+    question = session.get("question")
+    return render_template("index.html",
+                           results=documents_store,
+                           answer=answer,
+                           question=question,
+                           )
+
+@app.route("/reset", methods=["POST"])
+def reset():
+    global documents_store, faiss_index, all_chunks_store
+
+    session.clear()
+    documents_store = []
+    faiss_index = None
+    all_chunks_store = []
+    return redirect(url_for("home"))
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    
     files = request.files.getlist("files")
+
+    # print(files)
+
+    if not files:
+        return redirect(url_for("home"))
 
     result = []
 
@@ -48,7 +74,7 @@ def upload():
                 "text": text
             })
         
-            print(text)
+            # print(text)
 
 
         elif file.content_type.startswith("image/"):
@@ -59,20 +85,24 @@ def upload():
                 "text": text
             })
 
-            print(text)
+            # print(text)
 
-    global faiss_index, all_chunks_store
+    global documents_store, faiss_index, all_chunks_store
+
+    documents_store = result
 
     faiss_index, all_chunks_store = build_rag_index(result)
 
-    session["ocr_text"] = result
 
     return redirect(url_for("home"))
 
 
 @app.route("/ask", methods=["POST"])
 def ask():
+    global faiss_index, all_chunks_store
+
     question = request.form["question"]
+    session["question"] = question
 
     retrieved = retrieved_chunks(question, faiss_index, all_chunks_store)
 
@@ -81,7 +111,7 @@ def ask():
         for chunk in retrieved
     )
 
-    print(context)
+    # print(context)
 
     chat_response = client.chat.complete(
         model=model,
@@ -100,7 +130,7 @@ def ask():
         ]
     )
 
-    print(chat_response.choices[0].message.content)
+    session["answer"] = chat_response.choices[0].message.content
     
     return redirect(url_for("home"))
 
@@ -130,6 +160,8 @@ def build_rag_index(result):
                 "text": chunk
             })        
         
+    if not all_chunks:
+        return None, []
 
     texts = [chunk["text"] for chunk in all_chunks]
     embeddings = embedding_model.encode(texts)
