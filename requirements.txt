@@ -1,0 +1,10 @@
+Flask
+pytesseract
+PyMuPDF
+faiss-cpu
+numpy
+python-dotenv
+mistralai
+Pillow
+sentence-transformers
+torch
